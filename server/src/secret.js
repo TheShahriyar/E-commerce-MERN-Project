@@ -14,4 +14,5 @@ const smtpPass = process.env.SMTP_PASSWORD
 
 const clientURL = process.env.CLIENT_URL
 
+
 module.exports = {serverPort, mongoDBUrl, defaultUserImage, jwtSecretKey, smtpUser, smtpPass, clientURL}
