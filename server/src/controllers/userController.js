@@ -15,7 +15,7 @@ const getUsers = async (req, res, next)=> {
   try {
     const search = req.query.search || "";
     const page = Number(req.query.page) || 1;
-    const limit = Number(req.query.limit) || 5;
+    const limit = Number(req.query.limit) || 8;
 
     const searchRegEx = new RegExp('.*' + search + '.*', 'i')
     const filter = {
@@ -99,6 +99,7 @@ const processRegister = async (req, res, next)=> {
   try {
 
     const { name, email, password, phone, address } = req.body;
+    const imageBufferString = req.file.buffer.toString('base64');
 
     const userExist = await User.exists({email: email});
 
