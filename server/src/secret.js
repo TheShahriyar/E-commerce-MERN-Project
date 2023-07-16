@@ -4,7 +4,7 @@ const serverPort = process.env.SERVER_PORT || 3002
 
 const mongoDBUrl = process.env.MONGODB_ATLAS_URL
 
-const defaultUserImage = process.env.DEFAULT_USER_IMAGE_PATH || 'public/images/user.webp'
+const defaultUserImage = process.env.DEFAULT_USER_IMAGE_PATH || 'public/images/user.png'
 
 const jwtSecretKey = process.env.JWT_SECRET_KEY
 
