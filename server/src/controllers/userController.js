@@ -95,11 +95,73 @@ const deleteUserById = async (req, res, next)=> {
 }
 
 
+const updateUserByID = async (req, res, next)=> {
+  try {
+
+    const userId = req.params.id;
+    await findWithId( User, userId )
+    const updateOptions = {new: true, runValidators: true, context: 'query'};
+
+    let updates = {}
+
+    // if  (req.body.name)  {
+    //   updates.name = req.body.name;
+    // }
+    // if  (req.body.password)  {
+    //   updates.name = req.body.password;
+    // }
+    // if  (req.body.phone)  {
+    //   updates.name = req.body.phone;
+    // }
+    // if  (req.body.address)  {
+    //   updates.name = req.body.address;
+    // }
+
+    for (let key in req.body) {
+      if(['name', 'password', 'phone', 'address'].includes(key)) {
+        updates[key] = req.body[key]
+      }
+    }
+
+    const image = req.file;
+    if(image) {
+      if(image.size > (1024*1024*2)) {
+        throw createError("image size is too large. Size should not be  greater than 2MB")
+      }
+      updates.image = image.buffer.toString('base64')
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(userId, updates, updateOptions).select("-password");
+
+    if(!updatedUser) {
+      throw createError(404, "User isn't exist")
+    }
+
+    return successResponse(res, {
+      statusCode: 200,
+      message: "User updated successfully",
+      payload: updatedUser
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+
 const processRegister = async (req, res, next)=> {
   try {
 
     const { name, email, password, phone, address } = req.body;
-    const imageBufferString = req.file.buffer.toString('base64');
+
+    const image = req.file;
+    if(!image) {
+      throw createError(400, "image is required")
+    }
+    if(image.size > (1024*1024*2)) {
+      throw createError("image size is too large. Size should not be  greater than 2MB")
+    }
+
+    const imageBufferString = image.buffer.toString('base64');
 
     const userExist = await User.exists({email: email});
 
@@ -172,4 +234,4 @@ const activateUserAccount = async (req, res, next)=> {
   }
 }
 
-module.exports = { getUsers, getUserById, deleteUserById, processRegister, activateUserAccount };
+module.exports = { getUsers, getUserById, deleteUserById, processRegister, activateUserAccount, updateUserByID };
