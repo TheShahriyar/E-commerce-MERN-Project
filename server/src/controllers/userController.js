@@ -6,8 +6,8 @@ const deleteImage = require('../helper/deleteImage');
 const { createJSONWebToken } = require('../helper/jsonwebtoken');
 const { jwtSecretKey, clientURL } = require('../secret');
 const { emailWithNodeMailer } = require('../helper/email');
-const fs = require('fs').promises;
 const jwt = require('jsonwebtoken')
+const fs = require('fs').promises;
 
 
 
