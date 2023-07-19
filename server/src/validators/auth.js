@@ -1,4 +1,6 @@
 const {body} = require('express-validator')
+
+
 // Registration validation
 const validateUserRegistration = [
   body("name")
@@ -47,7 +49,29 @@ const validateUserRegistration = [
 ]
 
 
+// Login Validation
+const validateUserLogin = [
+  
+  body("email")
+  .trim()
+  .notEmpty()
+  .withMessage("Email is required!")
+  .isEmail()
+  .withMessage("Invalid Email"),
+
+  body("password")
+  .trim()
+  .notEmpty()
+  .withMessage("Password is required!")
+  .isLength({min:6})
+  .withMessage("Password should be at least 6 character long")
+  .matches(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!.*\s).{6,20}$/)
+  .withMessage("Password should be at least a uppercase, lowercase, symbol and number")
+
+]
+
+
 // Sign in Validation
 
 
-module.exports = {validateUserRegistration}
+module.exports = {validateUserRegistration, validateUserLogin}
