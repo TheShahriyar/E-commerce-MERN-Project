@@ -9,6 +9,7 @@ const defaultUserImage =
 
 const jwtSecretKey = process.env.JWT_SECRET_KEY;
 const jwtAccessKey = process.env.JWT_ACCESS_KEY;
+const jwtRefreshKey = process.env.JWT_ACCESS_KEY;
 const jwtResetPasswordKey = process.env.JWT_RESET_PASSWORD_KEY;
 
 const smtpUser = process.env.SMTP_USERNAME;
@@ -27,4 +28,5 @@ module.exports = {
   clientURL,
   jwtAccessKey,
   jwtResetPasswordKey,
+  jwtRefreshKey,
 };
