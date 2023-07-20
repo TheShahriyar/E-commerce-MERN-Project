@@ -1,0 +1,7 @@
+{
+  "emmet.showSuggestionsAsSnippets": true,
+  "reactSnippets.settings.prettierEnabled": true,
+  "editor.formatOnSave": true,
+  "editor.formatOnPaste": true,
+  "editor.formatOnType": true
+}
