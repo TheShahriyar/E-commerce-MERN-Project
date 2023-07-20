@@ -8,6 +8,7 @@ const { jwtSecretKey, clientURL } = require('../secret');
 const { emailWithNodeMailer } = require('../helper/email');
 const jwt = require('jsonwebtoken')
 const fs = require('fs').promises;
+const bcrypt = require('bcryptjs')
 
 
 
@@ -280,4 +281,32 @@ const handleUnanUserByID = async (req, res, next) => {
   }
 }
 
-module.exports = { getUsers, getUserById, deleteUserById, processRegister, activateUserAccount, updateUserByID, handleBanUserByID, handleUnanUserByID };
+const handleUpdatePassword = async (req, res, next)=> {
+  try {
+
+    const {oldPassword, newPassword} = req.body;
+    const userID = req.params.id;
+
+    const user = await findWithId(User, userID)
+
+    const isPasswordMatch = await bcrypt.compare(oldPassword, user.password)
+    if (!isPasswordMatch) {
+      throw createError(401, "Old Password didn't match")
+    }
+
+    const updates = {$set: {password: newPassword}}
+    const updateOptions = {new : true}
+
+    const updatedUser = await User.findByIdAndUpdate(userID, updates, updateOptions).select('-password')
+
+    return successResponse(res, {
+      statusCode: 200,
+      message: "Password updated successfully",
+      payload: updatedUser
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+module.exports = { getUsers, getUserById, deleteUserById, processRegister, activateUserAccount, updateUserByID, handleBanUserByID, handleUnanUserByID, handleUpdatePassword };
