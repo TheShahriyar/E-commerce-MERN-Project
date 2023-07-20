@@ -4,7 +4,7 @@ const { successResponse } = require('./responseController');
 const { findWithId } = require('../services/findItem');
 const deleteImage = require('../helper/deleteImage');
 const { createJSONWebToken } = require('../helper/jsonwebtoken');
-const { jwtSecretKey, clientURL } = require('../secret');
+const { jwtSecretKey, clientURL, jwtResetPasswordKey } = require('../secret');
 const { emailWithNodeMailer } = require('../helper/email');
 const jwt = require('jsonwebtoken')
 const fs = require('fs').promises;
@@ -309,4 +309,76 @@ const handleUpdatePassword = async (req, res, next)=> {
   }
 }
 
-module.exports = { getUsers, getUserById, deleteUserById, processRegister, activateUserAccount, updateUserByID, handleBanUserByID, handleUnanUserByID, handleUpdatePassword };
+
+const handleForgotPassword = async (req, res, next)=> {
+  try {
+
+    const {email} = req.body;
+
+    const userData = await User.findOne({email: email})
+    if(!userData) {
+      throw createError(404, "Email is incorrect")
+    }
+
+    const token = createJSONWebToken({email}, jwtResetPasswordKey, '15m');
+
+    // Prepare Email
+    const emailData = {
+      email,
+      subject: 'Reset Password Email',
+      html: `
+      <h2> Hello ${userData.name} </h2>
+      <p>Please click here to <a href="${clientURL}/api/users/reset-password/${token}" target="_blank">Click here</a>Reset Password</p>
+      `
+    }
+
+    try {
+      await emailWithNodeMailer(emailData)
+    } catch (error) {
+      next(createError(500, "Failed to send forget password email"));
+      return;
+    }
+    
+
+    return successResponse(res, {
+      statusCode: 200,
+      message: `Please go to your ${email} for reseting password`,
+      payload: {token}
+    })
+    
+  } catch (error) {
+    next(error)
+  }
+}
+
+
+const handleResetPassword = async (req, res, next)=> {
+  try {
+
+    const {token, newPassword} = req.body;
+
+    const decoded = jwt.verify(token, jwtResetPasswordKey);
+    if(!decoded) {
+      throw createError(400, "Invalid or expired token!")
+    }
+
+    const filter = {email: decoded.email}
+    const updates = {$set: {password: newPassword}}
+    const updateOptions = {new : true}
+
+    const updatedUser = await User.findOneAndUpdate(filter, updates, updateOptions).select('-password')
+
+    if(!updatedUser) {
+      throw createError(400, "Password reset failed!")
+    }
+
+    return successResponse(res, {
+      statusCode: 200,
+      message: "Password reset successfully",
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+module.exports = { getUsers, getUserById, deleteUserById, processRegister, activateUserAccount, updateUserByID, handleBanUserByID, handleUnanUserByID, handleUpdatePassword, handleForgotPassword, handleResetPassword };

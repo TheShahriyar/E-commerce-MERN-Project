@@ -101,5 +101,42 @@ const validateConfirmPassword = [
 
 ]
 
+// Login Validation
+const validateUserForgotPassword = [
+  
+  body("email")
+  .trim()
+  .notEmpty()
+  .withMessage("Email is required!")
+  .isEmail()
+  .withMessage("Invalid Email")
 
-module.exports = {validateUserRegistration, validateUserLogin, validateConfirmPassword}
+]
+
+const validateResetPassword = [
+  
+  body("token")
+  .trim()
+  .notEmpty()
+  .withMessage("Token is missing!"),
+
+  body("newPassword")
+  .trim()
+  .notEmpty()
+  .withMessage("New Password is required!")
+  .isLength({min:6})
+  .withMessage("New Password should be at least 6 character long")
+  .matches(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!.*\s).{6,20}$/)
+  .withMessage("Password should be at least a uppercase, lowercase, symbol and number"),
+
+  body('confirmPassword').custom((value, {req}) => {
+    if(value !== req.body.newPassword) {
+      throw new Error("Passowrd didn't match")
+    }
+    return true;
+  })
+
+]
+
+
+module.exports = {validateUserRegistration, validateUserLogin, validateConfirmPassword, validateUserForgotPassword, validateResetPassword}
