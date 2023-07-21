@@ -70,6 +70,7 @@ const handleLogin = async (req, res, next) => {
 const handleLogout = async (req, res, next) => {
   try {
     res.clearCookie("accessToken");
+    res.clearCookie("refreshToken");
 
     return successResponse(res, {
       statusCode: 200,
