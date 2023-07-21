@@ -33,12 +33,22 @@ userRouter.post(
 );
 userRouter.post("/activate", isLoggedOut, activateUserAccount);
 userRouter.get("/", isLoggedIn, isAdmin, getUsers);
-userRouter.get("/:id", isLoggedIn, getUserById);
-userRouter.delete("/:id", isLoggedIn, deleteUserById);
-userRouter.put("/ban-user/:id", isLoggedIn, isAdmin, handleBanUserByID);
-userRouter.put("/unban-user/:id", isLoggedIn, isAdmin, handleUnanUserByID);
+userRouter.get("/:id([0-9a-fA_F]{24})", isLoggedIn, getUserById);
+userRouter.delete("/:id([0-9a-fA_F]{24})", isLoggedIn, deleteUserById);
 userRouter.put(
-  "/update-password/:id",
+  "/ban-user/:id([0-9a-fA_F]{24})",
+  isLoggedIn,
+  isAdmin,
+  handleBanUserByID
+);
+userRouter.put(
+  "/unban-user/:id([0-9a-fA_F]{24})",
+  isLoggedIn,
+  isAdmin,
+  handleUnanUserByID
+);
+userRouter.put(
+  "/update-password/:id([0-9a-fA_F]{24})",
   validateConfirmPassword,
   runValidation,
   isLoggedIn,
@@ -56,6 +66,11 @@ userRouter.put(
   runValidation,
   handleResetPassword
 );
-userRouter.put("/:id", upload.single("image"), isLoggedIn, updateUserByID);
+userRouter.put(
+  "/:id([0-9a-fA_F]{24})",
+  upload.single("image"),
+  isLoggedIn,
+  updateUserByID
+);
 
 module.exports = userRouter;

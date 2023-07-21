@@ -9,6 +9,7 @@ const { emailWithNodeMailer } = require("../helper/email");
 const jwt = require("jsonwebtoken");
 const fs = require("fs").promises;
 const bcrypt = require("bcryptjs");
+const checkUserExist = require("../helper/checkUserExist");
 
 const getUsers = async (req, res, next) => {
   try {
@@ -109,9 +110,11 @@ const updateUserByID = async (req, res, next) => {
     //   updates.name = req.body.address;
     // }
 
-    for (let key in req.body) {
+    for (const key in req.body) {
       if (["name", "password", "phone", "address"].includes(key)) {
         updates[key] = req.body[key];
+      } else if (key === "email") {
+        throw new Error("Email can not be updated");
       }
     }
 
@@ -161,7 +164,7 @@ const processRegister = async (req, res, next) => {
 
     const imageBufferString = image.buffer.toString("base64");
 
-    const userExist = await User.exists({ email: email });
+    const userExist = await checkUserExist(email);
 
     if (userExist) {
       throw createError(409, "User already exist with this email.");

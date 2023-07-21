@@ -52,9 +52,8 @@ const handleLogin = async (req, res, next) => {
       sameSite: "none",
     });
 
-    const userWithoutPassword = await User.findOne({ email }).select(
-      "-password"
-    );
+    const userWithoutPassword = user.toObject();
+    delete userWithoutPassword.password;
 
     return successResponse(res, {
       statusCode: 200,
