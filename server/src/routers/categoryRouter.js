@@ -5,7 +5,7 @@ const { isLoggedIn, isLoggedOut, isAdmin } = require("../middlewares/auth");
 const {
   handleCreateCategory,
   getAllCategories,
-  getCategoryByID,
+  getCategoryBySlug,
 } = require("../controllers/categoryController");
 const { validateCategory } = require("../validators/category");
 const categoryRouter = express.Router();
@@ -20,6 +20,6 @@ categoryRouter.post(
 );
 
 categoryRouter.get("/", getAllCategories);
-categoryRouter.get("/:id", getCategoryByID);
+categoryRouter.get("/:slug", getCategoryBySlug);
 
 module.exports = categoryRouter;

@@ -3,7 +3,6 @@ const { successResponse } = require("./responseController");
 const Category = require("../models/categoryModel");
 const { createCategory } = require("../services/cetegoryService");
 const checkCategoryExist = require("../helper/checkCategoryExist");
-const { findWithId } = require("../services/findItem");
 
 const handleCreateCategory = async (req, res, next) => {
   try {
@@ -42,11 +41,17 @@ const getAllCategories = async (req, res, next) => {
   }
 };
 
-const getCategoryByID = async (req, res, next) => {
+const getCategoryBySlug = async (req, res, next) => {
   try {
-    const id = req.params.id;
+    const slug = req.params.slug;
+    const option = {
+      slug: slug,
+    };
 
-    const category = await findWithId(Category, id);
+    const category = await Category.findOne(option);
+    if (!category) {
+      throw createError(404, `Category doesn't exist`);
+    }
 
     return successResponse(res, {
       statusCode: 200,
@@ -58,4 +63,4 @@ const getCategoryByID = async (req, res, next) => {
   }
 };
 
-module.exports = { handleCreateCategory, getAllCategories, getCategoryByID };
+module.exports = { handleCreateCategory, getAllCategories, getCategoryBySlug };
