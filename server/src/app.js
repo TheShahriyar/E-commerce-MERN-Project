@@ -8,6 +8,7 @@ const userRouter = require("./routers/userRouter");
 const seedRouter = require("./routers/seedRouter");
 const { errorResponse } = require("./controllers/responseController");
 const authRouter = require("./routers/authRouter");
+const categoryRouter = require("./routers/categoryRouter");
 
 const app = express();
 
@@ -34,6 +35,7 @@ app.get("/test", rateLimiter, (req, res) => {
 app.use("/api/seed", seedRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/users", userRouter);
+app.use("/api/categories", categoryRouter);
 
 // Client error handling
 app.use((req, res, next) => {
