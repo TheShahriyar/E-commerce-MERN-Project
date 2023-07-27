@@ -11,8 +11,13 @@ const handleCreateCategory = async (req, res, next) => {
     const newCategory = await createCategory(name);
 
     // const categoryExist = await Category.exists({
-    //   name: newCategory.name
+    //   name: name,
     // });
+    // if (categoryExist) {
+    //   throw createError(409, "Category already exist.");
+    // }
+
+    // const categoryExist = await checkCategoryExist(name);
     // if (categoryExist) {
     //   throw createError(409, "Category already exist.");
     // }
@@ -63,4 +68,29 @@ const getCategoryBySlug = async (req, res, next) => {
   }
 };
 
-module.exports = { handleCreateCategory, getAllCategories, getCategoryBySlug };
+const handleDeleteCategory = async (req, res, next) => {
+  try {
+    const slug = req.params.slug;
+    const option = {
+      slug: slug,
+    };
+    const category = await Category.findOne(option);
+
+    await Category.findOneAndDelete({ slug: slug });
+
+    return successResponse(res, {
+      statusCode: 200,
+      message: `Category deleted successfully`,
+      payload: { category },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = {
+  handleCreateCategory,
+  getAllCategories,
+  getCategoryBySlug,
+  handleDeleteCategory,
+};
