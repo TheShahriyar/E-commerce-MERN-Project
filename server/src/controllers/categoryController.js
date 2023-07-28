@@ -1,7 +1,12 @@
 const createError = require("http-errors");
+const slugify = require("slugify");
 const { successResponse } = require("./responseController");
 const Category = require("../models/categoryModel");
-const { createCategory } = require("../services/cetegoryService");
+const {
+  createCategory,
+  getCategories,
+  updateCategory,
+} = require("../services/cetegoryService");
 const checkCategoryExist = require("../helper/checkCategoryExist");
 
 const handleCreateCategory = async (req, res, next) => {
@@ -34,7 +39,7 @@ const handleCreateCategory = async (req, res, next) => {
 
 const getAllCategories = async (req, res, next) => {
   try {
-    const categories = await Category.find();
+    const categories = await getCategories();
 
     return successResponse(res, {
       statusCode: 200,
@@ -48,12 +53,9 @@ const getAllCategories = async (req, res, next) => {
 
 const getCategoryBySlug = async (req, res, next) => {
   try {
-    const slug = req.params.slug;
-    const option = {
-      slug: slug,
-    };
+    const { slug } = req.params;
 
-    const category = await Category.findOne(option);
+    const category = await Category.find({ slug }).select("name slug").lean();
     if (!category) {
       throw createError(404, `Category doesn't exist`);
     }
@@ -61,7 +63,7 @@ const getCategoryBySlug = async (req, res, next) => {
     return successResponse(res, {
       statusCode: 200,
       message: `Category returned successfully`,
-      payload: { category },
+      payload: category,
     });
   } catch (error) {
     next(error);
@@ -74,14 +76,37 @@ const handleDeleteCategory = async (req, res, next) => {
     const option = {
       slug: slug,
     };
-    const category = await Category.findOne(option);
+    // const category = await Category.findOne(option);
 
-    await Category.findOneAndDelete({ slug: slug });
+    const deleteCategory = await Category.findOneAndDelete(option);
+    if (!deleteCategory) {
+      throw createError(400, "Category not found");
+    }
 
     return successResponse(res, {
       statusCode: 200,
       message: `Category deleted successfully`,
-      payload: { category },
+      payload: deleteCategory,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const handleUpdateCategory = async (req, res, next) => {
+  try {
+    const { name } = req.body;
+    const { slug } = req.params;
+
+    const updatedCategory = await updateCategory(name, slug);
+    if (!updateCategory) {
+      throw createError(404, "Category not found!");
+    }
+
+    return successResponse(res, {
+      statusCode: 200,
+      message: `Category Updated successfully`,
+      payload: updatedCategory,
     });
   } catch (error) {
     next(error);
@@ -93,4 +118,5 @@ module.exports = {
   getAllCategories,
   getCategoryBySlug,
   handleDeleteCategory,
+  handleUpdateCategory,
 };
