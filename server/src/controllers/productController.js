@@ -85,7 +85,7 @@ const handleGetProducts = async (req, res, next) => {
 const handleGetProductBySlug = async (req, res, next) => {
   try {
     const slug = req.params.slug;
-    const product = await Product.find({ slug }).populate("category").lean();
+    const product = await Product.findOne({ slug }).populate("category").lean();
 
     if (!product) {
       throw createError(404, "Product not found");
@@ -94,7 +94,7 @@ const handleGetProductBySlug = async (req, res, next) => {
     return successResponse(res, {
       statusCode: 200,
       message: "Product returned successfully!",
-      payload: product,
+      payload: { product },
     });
   } catch (error) {
     next(error);

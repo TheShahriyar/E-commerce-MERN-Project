@@ -172,7 +172,7 @@ const processRegister = async (req, res, next) => {
 
     // Create JWT
     const token = createJSONWebToken(
-      { name, email, password, phone, address },
+      { name, email, password, phone, address, imageBufferString },
       jwtSecretKey,
       "10m"
     );
