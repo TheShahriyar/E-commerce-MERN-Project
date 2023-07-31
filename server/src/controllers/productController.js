@@ -46,4 +46,63 @@ const handleCreateProduct = async (req, res, next) => {
   }
 };
 
-module.exports = { handleCreateProduct };
+const handleGetProducts = async (req, res, next) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 4;
+
+    const products = await Product.find({}, { image: 0 })
+      .populate("category")
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .sort({ createdAt: -1 });
+
+    if (!products) {
+      throw createError(404, "Products not found");
+    }
+
+    const count = await Product.find({}).countDocuments();
+
+    return successResponse(res, {
+      statusCode: 200,
+      message: "All products returned successfully!",
+      payload: {
+        products: products,
+        pagination: {
+          totalProducts: count,
+          totalPage: Math.ceil(count / limit),
+          currentPage: page,
+          previousPage: page - 1 > 0 ? page - 1 : null,
+          nextPage: page + 1 <= Math.ceil(count / limit) ? page + 1 : null,
+        },
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const handleGetProductBySlug = async (req, res, next) => {
+  try {
+    const slug = req.params.slug;
+    const product = await Product.find({ slug }).populate("category").lean();
+
+    if (!product) {
+      throw createError(404, "Product not found");
+    }
+
+    return successResponse(res, {
+      statusCode: 200,
+      message: "Product returned successfully!",
+      payload: product,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = {
+  handleCreateProduct,
+  handleGetProducts,
+  handleGetProductBySlug,
+};

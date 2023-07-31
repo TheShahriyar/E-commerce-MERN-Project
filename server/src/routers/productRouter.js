@@ -3,10 +3,15 @@ const upload = require("../middlewares/uploadFile");
 
 const { runValidation } = require("../validators");
 const { isLoggedIn, isLoggedOut, isAdmin } = require("../middlewares/auth");
-const { handleCreateProduct } = require("../controllers/productController");
+const {
+  handleCreateProduct,
+  handleGetProducts,
+  handleGetProductBySlug,
+} = require("../controllers/productController");
 const { validateProduct } = require("../validators/product");
 const productRouter = express.Router();
 
+// Create Product
 productRouter.post(
   "/",
   upload.single("image"),
@@ -16,5 +21,11 @@ productRouter.post(
   runValidation,
   handleCreateProduct
 );
+
+// Get ALl Products
+productRouter.get("/", handleGetProducts);
+
+// Get Single product
+productRouter.get("/:slug", handleGetProductBySlug);
 
 module.exports = productRouter;
