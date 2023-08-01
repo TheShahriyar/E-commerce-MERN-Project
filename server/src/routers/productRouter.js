@@ -7,6 +7,7 @@ const {
   handleCreateProduct,
   handleGetProducts,
   handleGetProductBySlug,
+  handleDeleteProduct,
 } = require("../controllers/productController");
 const { validateProduct } = require("../validators/product");
 const productRouter = express.Router();
@@ -27,5 +28,8 @@ productRouter.get("/", handleGetProducts);
 
 // Get Single product
 productRouter.get("/:slug", handleGetProductBySlug);
+
+// Delete product
+productRouter.delete("/:slug", isLoggedIn, isAdmin, handleDeleteProduct);
 
 module.exports = productRouter;
