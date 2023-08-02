@@ -121,9 +121,64 @@ const handleDeleteProduct = async (req, res, next) => {
   }
 };
 
+const handleUpdateProduct = async (req, res, next) => {
+  try {
+    const slug = req.params.slug;
+    const updateOptions = { new: true, runValidators: true, context: "query" };
+
+    let updates = {};
+
+    const allowedFields = [
+      "name",
+      "description",
+      "price",
+      "quantity",
+      "shipping",
+    ];
+    for (const key in req.body) {
+      if (allowedFields.includes(key)) {
+        updates[key] = req.body[key];
+      }
+    }
+
+    if (updates.name) {
+      updates.slug = slugify(updates.name.toLowerCase());
+    }
+
+    const image = req.file;
+    if (image) {
+      if (image.size > 1024 * 1024 * 2) {
+        throw createError(
+          "image size is too large. Size should not be  greater than 2MB"
+        );
+      }
+      updates.image = image.buffer.toString("base64");
+    }
+
+    const updatedProduct = await Product.findOneAndUpdate(
+      { slug },
+      updates,
+      updateOptions
+    );
+
+    if (!updatedProduct) {
+      throw createError(404, "Product isn't exist");
+    }
+
+    return successResponse(res, {
+      statusCode: 200,
+      message: "Product updated successfully",
+      payload: updatedProduct,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   handleCreateProduct,
   handleGetProducts,
   handleGetProductBySlug,
   handleDeleteProduct,
+  handleUpdateProduct,
 };
