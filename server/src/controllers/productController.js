@@ -48,10 +48,16 @@ const handleCreateProduct = async (req, res, next) => {
 
 const handleGetProducts = async (req, res, next) => {
   try {
+    const search = req.query.search || "";
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 4;
 
-    const products = await Product.find({}, { image: 0 })
+    const searchRegEx = new RegExp(".*" + search + ".*", "i");
+    const filter = {
+      $or: [{ name: { $regex: searchRegEx } }],
+    };
+
+    const products = await Product.find(filter, { image: 0 })
       .populate("category")
       .skip((page - 1) * limit)
       .limit(limit)
@@ -61,7 +67,7 @@ const handleGetProducts = async (req, res, next) => {
       throw createError(404, "Products not found");
     }
 
-    const count = await Product.find({}).countDocuments();
+    const count = await Product.find(filter).countDocuments();
 
     return successResponse(res, {
       statusCode: 200,
